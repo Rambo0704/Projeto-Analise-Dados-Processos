@@ -3,6 +3,5 @@
 #include <string.h>
 #include "functions.h"
 int main(){
-
-  return 0;
+  contid();
 }

@@ -11,7 +11,7 @@ typedef struct{
 }Processo;
  
 FILE *abrirarq(char *texto,char *modo);
-FILE fechararq(FILE *arq);
-
+void fechararq(FILE *arq);
+int contid();
 
 #endif
