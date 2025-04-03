@@ -3,7 +3,7 @@
 
 typedef struct{
   long id;
-  char num[21];
+  char num[30];
   char data[60];
   int id_classe;
   int id_assunto;
