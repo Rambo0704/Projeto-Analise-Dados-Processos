@@ -39,7 +39,7 @@ void ordprocessid() {
     int cont = 0;
     char linha[5000];
     while (fgets(linha, sizeof(linha), arquivo) && cont < 2000) { //while para ler o arquivo e armazenar em processos.
-      int resultado = sscanf(linha, "%ld,\"%[^\"]\",%[^,],{%d},{%d},%d",
+      int resultado = sscanf(linha, "%ld,\"%[^\"]\",%[^,],{%d},{%d},%d", //apos pesquisar na biblioteca stdio,econtei essa funçao que le e aramzena nos vetores.
         &processos[cont].id,
         processos[cont].num,
         processos[cont].data,
