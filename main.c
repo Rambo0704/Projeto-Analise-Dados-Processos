@@ -3,5 +3,6 @@
 #include <string.h>
 #include "functions.h"
 int main(){
-  contid();
+  ordprocessid();
+  return 0;
 }

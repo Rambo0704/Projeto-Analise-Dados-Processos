@@ -5,6 +5,7 @@
     "*.css": "css",
     ".dev.vars": "dotenv",
     "stdio.h": "c",
-    "functions.h": "c"
+    "functions.h": "c",
+    "stdlib.h": "c"
   }
 }
