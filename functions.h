@@ -14,4 +14,5 @@ FILE *abrirarq(char *texto,char *modo);
 void fechararq(FILE *arq);
 int contid();
 void ordprocessid();
+void teste();
 #endif

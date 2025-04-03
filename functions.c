@@ -50,7 +50,7 @@ void ordprocessid() {
     }
     fechararq(arquivo);
     for (int i = 0; i < cont - 1; i++) { // usando o bobble sort passado pelo professor para ordenar os processos.
-        for (int j = 0; j < cont - i - 1; j++) { //optei pelo bubble sort pois fez mais sentido na minha cabeça talvez não seja o mais eficiente :)
+        for (int j = 0; j < cont - i - 1; j++) { //optei pelo bubble sort pois fez mais sentido na minha cabeça, talvez não seja o mais eficiente :)
             if (processos[j].id > processos[j + 1].id) {
                 Processo temp = processos[j];
                 processos[j] = processos[j + 1];
@@ -66,5 +66,16 @@ void ordprocessid() {
                processos[i].id_classe,
                processos[i].id_assunto,
                processos[i].ano_eleicao);
+        }
+  FILE *arquivo_saida = abrirarq("processo_043_202409032338_ordenado.csv", "a"); //abri o arquivo para escrever os dados ordenados.
+  for (int y = 0; y < cont; y++){ //for para escrever os dados ordenados no arquivo.
+        fprintf(arquivo_saida, "%ld, \"%s\", %s, {%d}, {%d}, %d\n",
+                processos[y].id,
+                processos[y].num,
+                processos[y].data,
+                processos[y].id_classe,
+                processos[y].id_assunto,
+                processos[y].ano_eleicao);
     }
+        fechararq(arquivo_saida); //fechei o arquivo de saida.
 }
