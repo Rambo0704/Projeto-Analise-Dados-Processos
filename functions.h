@@ -12,7 +12,6 @@ typedef struct{
  
 FILE *abrirarq(char *texto,char *modo);
 void fechararq(FILE *arq);
-int contid();
+void contid(int idobtido);
 void ordprocessid();
-void teste();
 #endif

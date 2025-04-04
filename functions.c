@@ -18,21 +18,6 @@ void fechararq(FILE *arq) {
         fclose(arq);
     }
 }
-
-int contid() {  //função base
-    FILE *arquivo = abrirarq("processo_043_202409032338.csv", "r");
-    int cont = 0;
-    char linha[1000];
-
-    while (fgets(linha, sizeof(linha), arquivo)) {
-        cont++;
-        printf("%s", linha);
-    }
-
-    fechararq(arquivo);
-    return cont;
-}
-
 void ordprocessid() {
     FILE *arquivo = abrirarq("processo_043_202409032338.csv", "r");
     Processo processos[2000]; // vetor para armazenar os processos
@@ -79,3 +64,16 @@ void ordprocessid() {
     }
         fechararq(arquivo_saida); //fechei o arquivo de saida.
 }
+void contid(int idobtido) {
+    FILE *arquivo = abrirarq("processo_043_202409032338.csv", "r");
+    char linha[1000];
+    int cont = 0;
+    while (fgets(linha, sizeof(linha), arquivo)) {
+        char *p = strchr(linha, '{'); //procurei o caractere '{' na linha. (usei essa funçao que esta contida na biblioteca string.h,indicado pelo professor)
+        if (p && atoi(p + 1) == idobtido) //transformo o caractere em inteiro e comparo com o id obtido.
+            cont++;
+    }
+    printf("IDS encontrados: %d\n",cont);
+    fechararq(arquivo);
+}
+
