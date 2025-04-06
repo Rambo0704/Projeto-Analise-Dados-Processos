@@ -12,7 +12,6 @@ FILE *abrirarq(char *texto, char *modo) {
     }
     return arq;
 }
-
 void fechararq(FILE *arq) { 
     if (arq) {
         fclose(arq);
@@ -23,10 +22,12 @@ void ordprocessid() {
     Processo processos[2000]; // vetor para armazenar os processos
     int cont = 0;
     char linha[5000];
+    char cabecalho[5000];
+    fgets(cabecalho, sizeof(cabecalho), arquivo);
     while (fgets(linha, sizeof(linha), arquivo) && cont < 2000) { //while para ler o arquivo e armazenar em processos.
-      int resultado = sscanf(linha, "%ld,\"%[^\"]\",%[^,],{%d},{%d},%d", //apos pesquisar na biblioteca stdio,econtei essa funçao que le e aramzena nos vetores.
-        &processos[cont].id,
-        processos[cont].num,
+      int resultado = sscanf(linha, "%ld,\"%[^\"]\",%[^,],{%d},{%d},%d", //apos pesquisar na biblioteca stdio,econtei essa funçao que le e aramzena nos vetores,que parece ser mais adequado que o fscanf para essa situação.
+        &processos[cont].id,  //tratando o dado linha como uma string, e armazenando os dados em variaveis diferentes.
+        processos[cont].num,  
         processos[cont].data,
         &processos[cont].id_classe,
         &processos[cont].id_assunto,
@@ -53,6 +54,7 @@ void ordprocessid() {
                processos[i].ano_eleicao);
         }
   FILE *arquivo_saida = abrirarq("processo_043_202409032338_ordenado.csv", "a"); //abri o arquivo para escrever os dados ordenados.
+  fprintf(arquivo_saida, "%s", cabecalho);
   for (int y = 0; y < cont; y++){ //for para escrever os dados ordenados no arquivo.
         fprintf(arquivo_saida, "%ld, \"%s\", %s, {%d}, {%d}, %d\n",
                 processos[y].id,
@@ -76,4 +78,3 @@ void contid(int idobtido) {
     printf("IDS encontrados: %d\n",cont);
     fechararq(arquivo);
 }
-

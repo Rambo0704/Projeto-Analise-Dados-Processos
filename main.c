@@ -3,8 +3,6 @@
 #include <string.h>
 #include "functions.h"
 int main(){
-  int idobtido;
-  idobtido = 11541;
-  contid(idobtido);
+  ordprocessid();
   return 0;
 }
