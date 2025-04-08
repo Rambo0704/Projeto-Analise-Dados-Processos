@@ -19,24 +19,61 @@ void fechararq(FILE *arq) {
 }
 void ordprocessid() {
     FILE *arquivo = abrirarq("processo_043_202409032338.csv", "r");
-    Processo processos[2000]; // vetor para armazenar os processos
+    Processo processos[2000];
     int cont = 0;
     char linha[5000];
     char cabecalho[5000];
-    fgets(cabecalho, sizeof(cabecalho), arquivo);
-    while (fgets(linha, sizeof(linha), arquivo) && cont < 2000) { //while para ler o arquivo e armazenar em processos.
-      int resultado = sscanf(linha, "%ld,\"%[^\"]\",%[^,],{%d},{%d},%d", //apos pesquisar na biblioteca stdio,econtei essa funçao que le e aramzena nos vetores,que parece ser mais adequado que o fscanf para essa situação.
-        &processos[cont].id,  //tratando o dado linha como uma string, e armazenando os dados em variaveis diferentes.
-        processos[cont].num,  
-        processos[cont].data,
-        &processos[cont].id_classe,
-        &processos[cont].id_assunto,
-        &processos[cont].ano_eleicao);
+    fgets(cabecalho, sizeof(cabecalho), arquivo); //Fazendo primeiro o cabeçalho
+    while (fgets(linha, sizeof(linha), arquivo) && cont < 2000) {
+        char *p = linha;
+        processos[cont].id = strtol(p, &p, 10);
+        while (*p == ',' || *p == ' ') p++;
+
+        if (*p == '"') p++;
+        char *q = strchr(p, '"');
+        if (!q) continue;
+        *q = '\0';
+        strcpy(processos[cont].num, p);
+        p = q + 1;
+        while (*p == ',' || *p == ' ') p++;
+
+        q = strchr(p, ',');
+        if (!q) continue;
+        *q = '\0';
+        strcpy(processos[cont].data, p);
+        p = q + 1;
+
+        while (*p != '{' && *p != '\0') p++; 
+        if (*p != '{') continue;
+        q = strchr(p, '}');
+        if (!q) continue;
+        q++; 
+        int len = q - p;
+        strncpy(processos[cont].id_classe, p, len);
+        processos[cont].id_classe[len] = '\0';
+        p = q;
+        while (*p == ',' || *p == ' ') p++;
+
+        while (*p != '{' && *p != '\0') p++;
+        if (*p != '{') continue;
+        q = strchr(p, '}');
+        if (!q) continue;
+        q++;
+        len = q - p;
+        strncpy(processos[cont].id_assunto, p, len);
+        processos[cont].id_assunto[len] = '\0';
+        p = q;
+        while (*p == ',' || *p == ' ') p++;
+
+        processos[cont].ano_eleicao = atoi(p);
+
         cont++;
     }
+
     fechararq(arquivo);
-    for (int i = 0; i < cont - 1; i++) { // usando o bobble sort passado pelo professor para ordenar os processos.
-        for (int j = 0; j < cont - i - 1; j++) { //optei pelo bubble sort pois fez mais sentido na minha cabeça, talvez não seja o mais eficiente :)
+
+    for (int i = 0; i < cont - 1; i++) {
+        for (int j = 0; j < cont - i - 1; j++) {
             if (processos[j].id > processos[j + 1].id) {
                 Processo temp = processos[j];
                 processos[j] = processos[j + 1];
@@ -44,19 +81,21 @@ void ordprocessid() {
             }
         }
     }
+
     for (int i = 0; i < cont; i++) {
-        printf("%ld, \"%s\", %s, {%d}, {%d}, %d\n",
+        printf("%ld, \"%s\", %s, %s, %s, %d\n",
                processos[i].id,
                processos[i].num,
                processos[i].data,
                processos[i].id_classe,
                processos[i].id_assunto,
                processos[i].ano_eleicao);
-        }
-  FILE *arquivo_saida = abrirarq("processo_043_202409032338_ordenado.csv", "a"); //abri o arquivo para escrever os dados ordenados.
-  fprintf(arquivo_saida, "%s", cabecalho);
-  for (int y = 0; y < cont; y++){ //for para escrever os dados ordenados no arquivo.
-        fprintf(arquivo_saida, "%ld, \"%s\", %s, {%d}, {%d}, %d\n",
+    }
+
+    FILE *arquivo_saida = abrirarq("processo_043_202409032338_ordenado.csv", "w");
+    fprintf(arquivo_saida, "%s", cabecalho);
+    for (int y = 0; y < cont; y++) {
+        fprintf(arquivo_saida, "%ld, \"%s\", %s, %s, %s, %d\n",
                 processos[y].id,
                 processos[y].num,
                 processos[y].data,
@@ -64,7 +103,7 @@ void ordprocessid() {
                 processos[y].id_assunto,
                 processos[y].ano_eleicao);
     }
-        fechararq(arquivo_saida); //fechei o arquivo de saida.
+    fechararq(arquivo_saida);
 }
 void contid(int idobtido) {
     FILE *arquivo = abrirarq("processo_043_202409032338.csv", "r");

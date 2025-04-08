@@ -5,8 +5,8 @@ typedef struct{
   long id;
   char num[30];
   char data[60];
-  int id_classe;
-  int id_assunto;
+  char id_classe[60];
+  char id_assunto[60];
   int ano_eleicao;
 }Processo;
  
