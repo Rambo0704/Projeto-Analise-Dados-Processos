@@ -12,6 +12,9 @@ typedef struct{
  
 FILE *abrirarq(char *texto,char *modo);
 void fechararq(FILE *arq);
-void contid(int idobtido);
+void contidclass(int idobtido);
+int separacampo(char *linha, char *campos[], int max_campos) ;
 void ordprocessid();
+void calcular_dias_tramitacao();
+void contar_assuntos_distintos();
 #endif

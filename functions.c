@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "functions.h"
 
 FILE *abrirarq(char *texto, char *modo) { 
@@ -17,62 +18,52 @@ void fechararq(FILE *arq) {
         fclose(arq);
     }
 }
-void ordprocessid() {
+int separacampo(char *linha, char *campos[], int max_campos) { //criei uma função para facilitar a leitura e escrita de atributos multivalorados do arquivo csv, onde ela separa os campos e armazena em um vetor de strings.(dica do professor)
+    int campo_atual = 0;
+    int dentro_aspas = 0, dentro_chaves = 0;
+    char *inicio = linha;
+    for (char *p = linha; *p != '\0' && campo_atual < max_campos; p++) {
+        if (*p == '"') dentro_aspas = !dentro_aspas;
+        else if (*p == '{') dentro_chaves++;
+        else if (*p == '}') dentro_chaves--;
+        else if (*p == ',' && !dentro_aspas && dentro_chaves == 0) {
+            *p = '\0';
+            campos[campo_atual++] = inicio;
+            inicio = p + 1;
+        }
+    }
+    if (campo_atual < max_campos) {
+        campos[campo_atual++] = inicio;
+    }
+    return campo_atual;
+}
+void ordprocessid() { //ordenar os processos por id.
+    // Criei uma função para ordenar os processos por id, onde ela lê o arquivo csv e armazena os dados em um vetor de estruturas, depois ordena o vetor e escreve em um novo arquivo csv. (dica do professor)
     FILE *arquivo = abrirarq("processo_043_202409032338.csv", "r");
     Processo processos[2000];
     int cont = 0;
     char linha[5000];
     char cabecalho[5000];
-    fgets(cabecalho, sizeof(cabecalho), arquivo); //Fazendo primeiro o cabeçalho
+    fgets(cabecalho, sizeof(cabecalho), arquivo); 
     while (fgets(linha, sizeof(linha), arquivo) && cont < 2000) {
-        char *p = linha;
-        processos[cont].id = strtol(p, &p, 10);
-        while (*p == ',' || *p == ' ') p++;
-
-        if (*p == '"') p++;
-        char *q = strchr(p, '"');
-        if (!q) continue;
-        *q = '\0';
-        strcpy(processos[cont].num, p);
-        p = q + 1;
-        while (*p == ',' || *p == ' ') p++;
-
-        q = strchr(p, ',');
-        if (!q) continue;
-        *q = '\0';
-        strcpy(processos[cont].data, p);
-        p = q + 1;
-
-        while (*p != '{' && *p != '\0') p++; 
-        if (*p != '{') continue;
-        q = strchr(p, '}');
-        if (!q) continue;
-        q++; 
-        int len = q - p;
-        strncpy(processos[cont].id_classe, p, len);
-        processos[cont].id_classe[len] = '\0';
-        p = q;
-        while (*p == ',' || *p == ' ') p++;
-
-        while (*p != '{' && *p != '\0') p++;
-        if (*p != '{') continue;
-        q = strchr(p, '}');
-        if (!q) continue;
-        q++;
-        len = q - p;
-        strncpy(processos[cont].id_assunto, p, len);
-        processos[cont].id_assunto[len] = '\0';
-        p = q;
-        while (*p == ',' || *p == ' ') p++;
-
-        processos[cont].ano_eleicao = atoi(p);
-
+        char *campos[6]; 
+        int num_campos = separacampo(linha, campos, 6);
+        if (num_campos < 6) continue;
+        processos[cont].id = strtol(campos[0], NULL, 10);
+        char *num = campos[1];
+        if (*num == ' ') num++;
+        if (*num == '"') num++;
+        char *aspas = strchr(num, '"');
+        if (aspas) *aspas = '\0';
+        strcpy(processos[cont].num, num);
+        strcpy(processos[cont].data, campos[2]);
+        strcpy(processos[cont].id_classe, campos[3]);
+        strcpy(processos[cont].id_assunto, campos[4]);
+        processos[cont].ano_eleicao = atoi(campos[5]);
         cont++;
     }
-
     fechararq(arquivo);
-
-    for (int i = 0; i < cont - 1; i++) {
+    for (int i = 0; i < cont - 1; i++) { //utilizei o bobble sort para ordenar, não é o mais eficiente mas é o que faz sentido na minha cabeça :).
         for (int j = 0; j < cont - i - 1; j++) {
             if (processos[j].id > processos[j + 1].id) {
                 Processo temp = processos[j];
@@ -81,20 +72,9 @@ void ordprocessid() {
             }
         }
     }
-
-    for (int i = 0; i < cont; i++) {
-        printf("%ld, \"%s\", %s, %s, %s, %d\n",
-               processos[i].id,
-               processos[i].num,
-               processos[i].data,
-               processos[i].id_classe,
-               processos[i].id_assunto,
-               processos[i].ano_eleicao);
-    }
-
     FILE *arquivo_saida = abrirarq("processo_043_202409032338_ordenado.csv", "w");
-    fprintf(arquivo_saida, "%s", cabecalho);
-    for (int y = 0; y < cont; y++) {
+    fprintf(arquivo_saida, "%s", cabecalho); 
+    for (int y = 0; y < cont; y++) { //escrevendo os dados no arquivo csv ordenado.
         fprintf(arquivo_saida, "%ld, \"%s\", %s, %s, %s, %d\n",
                 processos[y].id,
                 processos[y].num,
@@ -103,9 +83,10 @@ void ordprocessid() {
                 processos[y].id_assunto,
                 processos[y].ano_eleicao);
     }
+    printf("Arquivo ordenado com sucesso!\n");
     fechararq(arquivo_saida);
 }
-void contid(int idobtido) {
+void contidclass(int idobtido) {
     FILE *arquivo = abrirarq("processo_043_202409032338.csv", "r");
     char linha[1000];
     int cont = 0;
@@ -114,6 +95,66 @@ void contid(int idobtido) {
         if (p && atoi(p + 1) == idobtido) //transformo o caractere em inteiro e comparo com o id obtido.
             cont++;
     }
-    printf("IDS encontrados: %d\n",cont);
+    printf("ID:%d encontrados: %d\n",idobtido,cont);
     fechararq(arquivo);
+}
+void calcular_dias_tramitacao() {
+    FILE *f = fopen("processo_043_202409032338.csv", "r");
+    if (!f) {
+        perror("Erro ao abrir arquivo");
+        return;
+    }
+
+    char l[5000], d[30], num[30];
+    long id;
+    int ic, ia, ae;
+    struct tm t = {0};
+    time_t now = time(NULL);
+
+    fgets(l, sizeof(l), f); // Ignora cabeçalho
+    while (fgets(l, sizeof(l), f)) {
+        sscanf(l, "%ld,\"%[^\"]\",%[^,],{%d},{%d},%d", &id, num, d, &ic, &ia, &ae);
+        sscanf(d, "%d-%d-%d", &t.tm_year, &t.tm_mon, &t.tm_mday);
+        t.tm_year -= 1900; t.tm_mon -= 1;
+        int dias = difftime(now, mktime(&t)) / 86400;
+        printf("ID %ld: %d dias em tramitacao\n", id, dias);
+    }
+
+    fclose(f);
+}
+void contar_assuntos_distintos() {
+    FILE *arquivo = abrirarq("processo_043_202409032338.csv", "r");
+    Processo processos[2000];
+    int total = 0;
+    char linha[5000];
+
+    while (fgets(linha, sizeof(linha), arquivo) && total < 2000) {
+        sscanf(linha, "%ld,\"%[^\"]\",%[^,],{%d},{%d},%d",
+               &processos[total].id,
+               processos[total].num,
+               processos[total].data,
+               &processos[total].id_classe,
+               &processos[total].id_assunto,
+               &processos[total].ano_eleicao);
+        total++;
+    }
+    fechararq(arquivo);
+
+    int distintos[2000];
+    int count_distintos = 0;
+
+    for (int i = 0; i < total; i++) {
+        int ja_existe = 0;
+        for (int j = 0; j < count_distintos; j++) {
+            if (processos[i].id_assunto == distintos[j]) {
+                ja_existe = 1;
+                break;
+            }
+        }
+        if (!ja_existe) {
+            distintos[count_distintos++] = processos[i].id_assunto;
+        }
+    }
+
+    printf("Quantidade de id_assunto distintos: %d\n", count_distintos);
 }
