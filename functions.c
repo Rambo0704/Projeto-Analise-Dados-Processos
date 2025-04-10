@@ -98,29 +98,36 @@ void contidclass(int idobtido) {
     printf("ID:%d encontrados: %d\n",idobtido,cont);
     fechararq(arquivo);
 }
-void calcular_dias_tramitacao() {
-    FILE *f = fopen("processo_043_202409032338.csv", "r");
-    if (!f) {
-        perror("Erro ao abrir arquivo");
-        return;
-    }
-
-    char l[5000], d[30], num[30];
-    long id;
-    int ic, ia, ae;
+void calcular_dias_tramitacao(int idprocura) {
+    FILE *arquivo = abrirarq("processo_043_202409032338.csv", "r");
+    char linha[5000];
     struct tm t = {0};
     time_t now = time(NULL);
-
-    fgets(l, sizeof(l), f); // Ignora cabeçalho
-    while (fgets(l, sizeof(l), f)) {
-        sscanf(l, "%ld,\"%[^\"]\",%[^,],{%d},{%d},%d", &id, num, d, &ic, &ia, &ae);
-        sscanf(d, "%d-%d-%d", &t.tm_year, &t.tm_mon, &t.tm_mday);
-        t.tm_year -= 1900; t.tm_mon -= 1;
-        int dias = difftime(now, mktime(&t)) / 86400;
-        printf("ID %ld: %d dias em tramitacao\n", id, dias);
+    fgets(linha, sizeof(linha), arquivo);
+    while (fgets(linha, sizeof(linha), arquivo)) {
+        Processo p;
+        sscanf(linha, "%ld,\"%[^\"]\",%[^,],{%[^}]},{%[^}]},%d",
+                   &p.id, 
+                   p.num, 
+                   p.data, 
+                   p.id_classe, 
+                   p.id_assunto, 
+                   &p.ano_eleicao);
+            if (idprocura == p.id) {
+                int ano, mes, dia;
+                if (sscanf(p.data, "%d-%d-%d", &ano, &mes, &dia) == 3) {
+                    t.tm_year = ano - 1900;
+                    t.tm_mon = mes - 1;
+                    t.tm_mday = dia;
+                    time_t data_processo = mktime(&t);
+                    if (data_processo != -1) {
+                        int dias = difftime(now, data_processo) / 86400;
+                        printf("ID: %ld - %d dias em tramitacao\n", p.id, dias);
+                break; 
+            }
+        }
     }
-
-    fclose(f);
+    }
 }
 void contar_assuntos_distintos() {
     FILE *arquivo = abrirarq("processo_043_202409032338.csv", "r");
@@ -146,15 +153,45 @@ void contar_assuntos_distintos() {
     for (int i = 0; i < total; i++) {
         int ja_existe = 0;
         for (int j = 0; j < count_distintos; j++) {
-            if (processos[i].id_assunto == distintos[j]) {
+            if (atoi(processos[i].id_assunto) == distintos[j]) {
                 ja_existe = 1;
                 break;
             }
         }
         if (!ja_existe) {
-            distintos[count_distintos++] = processos[i].id_assunto;
+            distintos[count_distintos++] = atoi(processos[i].id_assunto);
         }
     }
 
     printf("Quantidade de id_assunto distintos: %d\n", count_distintos);
+}
+void processassunt() {
+    FILE *arquivo = abrirarq("processo_043_202409032338.csv", "r");
+    char linha[5000];
+    Processo processos[2000];
+    int total = 0;
+    fgets(linha, sizeof(linha), arquivo); 
+    while (fgets(linha, sizeof(linha), arquivo) && total < 2000) {
+        if (sscanf(linha, "%ld,\"%[^\"]\",%[^,],{%[^}]},{%[^}]},%d",
+                   &processos[total].id,
+                   processos[total].num,
+                   processos[total].data,
+                   processos[total].id_classe,
+                   processos[total].id_assunto,
+                   &processos[total].ano_eleicao) == 6) {
+            if (processos[total].id_assunto[0] == '"') {
+                printf("%ld,\"%s\",%s,{%s},{%s},%d\n",
+                       processos[total].id,
+                       processos[total].num,
+                       processos[total].data,
+                       processos[total].id_classe,
+                       processos[total].id_assunto,
+                       processos[total].ano_eleicao);
+            }
+
+            total++;
+        }
+    }
+
+    fechararq(arquivo);
 }

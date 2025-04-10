@@ -4,6 +4,6 @@
 #include <time.h>
 #include "functions.h"
 int main(){
-  calcular_dias_tramitacao();
+  processassunt() ;
   return 0;
 }

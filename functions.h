@@ -15,6 +15,7 @@ void fechararq(FILE *arq);
 void contidclass(int idobtido);
 int separacampo(char *linha, char *campos[], int max_campos) ;
 void ordprocessid();
-void calcular_dias_tramitacao();
+void calcular_dias_tramitacao(int idprocura);
 void contar_assuntos_distintos();
+void processassunt();
 #endif
