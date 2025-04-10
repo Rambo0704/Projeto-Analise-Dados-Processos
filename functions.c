@@ -205,7 +205,6 @@ void ordprocessodata() {
     while (fgets(linha, sizeof(linha), arquivo) && cont < 2000) {
         char *campos[6];
         int num_campos = separacampo(linha, campos, 6);
-        if (num_campos < 6) continue;
 
         processos[cont].id = strtol(campos[0], NULL, 10);
         char *num = campos[1];

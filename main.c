@@ -4,6 +4,6 @@
 #include <time.h>
 #include "functions.h"
 int main(){
-  ordprocessid();
+  ordprocessodata();
   return 0;
 }
