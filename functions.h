@@ -18,4 +18,5 @@ void ordprocessid();
 void calcular_dias_tramitacao(int idprocura);
 void contar_assuntos_distintos();
 void processassunt();
+void ordprocessodata();
 #endif

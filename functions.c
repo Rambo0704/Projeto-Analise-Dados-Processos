@@ -195,3 +195,53 @@ void processassunt() {
 
     fechararq(arquivo);
 }
+void ordprocessodata() {
+    FILE *arquivo = abrirarq("processo_043_202409032338.csv", "r");
+    Processo processos[2000];
+    int cont = 0;
+    char linha[5000];
+    char cabecalho[5000];
+    fgets(cabecalho, sizeof(cabecalho), arquivo);
+    while (fgets(linha, sizeof(linha), arquivo) && cont < 2000) {
+        char *campos[6];
+        int num_campos = separacampo(linha, campos, 6);
+        if (num_campos < 6) continue;
+
+        processos[cont].id = strtol(campos[0], NULL, 10);
+        char *num = campos[1];
+        if (*num == ' ') num++;
+        if (*num == '"') num++;
+        char *aspas = strchr(num, '"');
+        if (aspas) *aspas = '\0';                             
+        strcpy(processos[cont].num, num);
+        strcpy(processos[cont].data, campos[2]);
+        strcpy(processos[cont].id_classe, campos[3]);
+        strcpy(processos[cont].id_assunto, campos[4]);
+        processos[cont].ano_eleicao = atoi(campos[5]);
+        cont++;
+    }
+    fechararq(arquivo);
+    // Ordena por data_ajuizamento (ordem decrescente)
+    for (int i = 0; i < cont - 1; i++) {
+        for (int j = 0; j < cont - i - 1; j++) {
+            if (strcmp(processos[j].data, processos[j + 1].data) < 0) {
+                Processo temp = processos[j];
+                processos[j] = processos[j + 1];
+                processos[j + 1] = temp;
+            }
+        }
+    }
+    FILE *saida = abrirarq("processo_043_202409032338_data.csv", "w");
+    fprintf(saida, "%s", cabecalho);
+    for (int i = 0; i < cont; i++) {
+        fprintf(saida, "%ld, \"%s\", %s, %s, %s, %d\n",
+                processos[i].id,
+                processos[i].num,
+                processos[i].data,
+                processos[i].id_classe,
+                processos[i].id_assunto,
+                processos[i].ano_eleicao);
+    }
+    fechararq(saida);
+    printf("Arquivo ordenado por data_ajuizamento (decrescente) salvo com sucesso!\n");
+}
