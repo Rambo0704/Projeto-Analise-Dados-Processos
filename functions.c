@@ -72,6 +72,16 @@ void ordprocessid() { //ordenar os processos por id.
             }
         }
     }
+    int x = 0;
+    for(x= 0; x < cont; x++){ //for para imprimir os dados no console.
+        printf("%ld, \"%s\", %s, %s, %s, %d\n",
+               processos[x].id,
+               processos[x].num,
+               processos[x].data,
+               processos[x].id_classe,
+               processos[x].id_assunto,
+               processos[x].ano_eleicao);
+    }
     FILE *arquivo_saida = abrirarq("processo_043_202409032338_ordenado.csv", "w");
     fprintf(arquivo_saida, "%s", cabecalho); 
     for (int y = 0; y < cont; y++) { //escrevendo os dados no arquivo csv ordenado.
@@ -199,6 +209,7 @@ void ordprocessodata() {
     int cont = 0;
     char linha[5000];
     char cabecalho[5000];
+
     fgets(cabecalho, sizeof(cabecalho), arquivo);
     while (fgets(linha, sizeof(linha), arquivo) && cont < 2000) {
         char *campos[6];
@@ -209,17 +220,18 @@ void ordprocessodata() {
         if (*num == ' ') num++;
         if (*num == '"') num++;
         char *aspas = strchr(num, '"');
-        if (aspas) *aspas = '\0';                             
+        if (aspas) *aspas = '\0';
+
         strcpy(processos[cont].num, num);
         strcpy(processos[cont].data, campos[2]);
         strcpy(processos[cont].id_classe, campos[3]);
         strcpy(processos[cont].id_assunto, campos[4]);
         processos[cont].ano_eleicao = atoi(campos[5]);
+
         cont++;
     }
     fechararq(arquivo);
-    // Ordena por data_ajuizamento (ordem decrescente)
-    for (int i = 0; i < cont - 1; i++) {
+    for (int i = 0; i < cont - 1; i++) {//bubble sort para ordenar (descrescente) os processos por data.
         for (int j = 0; j < cont - i - 1; j++) {
             if (strcmp(processos[j].data, processos[j + 1].data) < 0) {
                 Processo temp = processos[j];
@@ -238,7 +250,14 @@ void ordprocessodata() {
                 processos[i].id_classe,
                 processos[i].id_assunto,
                 processos[i].ano_eleicao);
+        printf("%ld, \"%s\", %s, %s, %s, %d\n",
+               processos[i].id,
+               processos[i].num,
+               processos[i].data,
+               processos[i].id_classe,
+               processos[i].id_assunto,
+               processos[i].ano_eleicao);
     }
     fechararq(saida);
-    printf("Arquivo ordenado por data_ajuizamento (decrescente) salvo com sucesso!\n");
+    printf("\nArquivo ordenado salvo como 'processo_043_202409032338_data.csv'.\n");
 }
