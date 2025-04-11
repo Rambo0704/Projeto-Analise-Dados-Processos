@@ -168,31 +168,29 @@ void contar_assuntos_distintos() {
 void processassunt() {
     FILE *arquivo = abrirarq("processo_043_202409032338.csv", "r");
     char linha[5000];
-    Processo processos[2000];
-    int total = 0;
-    fgets(linha, sizeof(linha), arquivo); 
-    while (fgets(linha, sizeof(linha), arquivo) && total < 2000) {
-        if (sscanf(linha, "%ld,\"%[^\"]\",%[^,],{%[^}]},{%[^}]},%d",
-                   &processos[total].id,
-                   processos[total].num,
-                   processos[total].data,
-                   processos[total].id_classe,
-                   processos[total].id_assunto,
-                   &processos[total].ano_eleicao) == 6) {
-            if (processos[total].id_assunto[0] == '"') {
-                printf("%ld,\"%s\",%s,{%s},{%s},%d\n",
-                       processos[total].id,
-                       processos[total].num,
-                       processos[total].data,
-                       processos[total].id_classe,
-                       processos[total].id_assunto,
-                       processos[total].ano_eleicao);
-            }
+    Processo p;
 
-            total++;
+    fgets(linha, sizeof(linha), arquivo);
+
+    while (fgets(linha, sizeof(linha), arquivo)) {
+        char *campos[6];
+        int n = separacampo(linha, campos, 6);
+        p.id = strtol(campos[0], NULL, 10);
+        strcpy(p.num, campos[1]);
+        strcpy(p.data, campos[2]);
+        strcpy(p.id_classe, campos[3]);
+        strcpy(p.id_assunto, campos[4]);
+        p.ano_eleicao = atoi(campos[5]);
+        if (strchr(p.id_assunto, ',')) {
+            printf("%ld, \"%s\", %s, %s, %s, %d\n",
+                   p.id,
+                   p.num,
+                   p.data,
+                   p.id_classe,
+                   p.id_assunto,
+                   p.ano_eleicao);
         }
     }
-
     fechararq(arquivo);
 }
 void ordprocessodata() {

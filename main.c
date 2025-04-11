@@ -4,6 +4,6 @@
 #include <time.h>
 #include "functions.h"
 int main(){
-  ordprocessodata();
+  processassunt();
   return 0;
 }
