@@ -68,26 +68,6 @@ Este projeto realiza uma análise de dados de processos judiciais da Justiça El
 
 ---
 
-## 📈 Exemplos de Uso
-
-Supondo o dataset `processos.csv`:
-
-```bash
-./analise_processos ./dados/processos.csv
-```
-
-Saída esperada:
-
-```
-Total de processos: 5000
-Processos finalizados: 3200
-Taxa de indeferimento: 45.3%
-Comarca com mais processos: Brasília (1230)
-...
-```
-
----
-
 ## 🧪 Como Testar
 
 * Utilize arquivos CSV de exemplo com formatos semelhantes.
